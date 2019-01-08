@@ -31,34 +31,36 @@ class Api {
     return _instance;
   }
 
-  static Future<List<Item>> _getItems(String path, int page) async {
-    final response = await _getInstance().get("/$path", data: {'page': page});
+  static Future<List<Item>> _getItems(String path, int page,
+      {CancelToken token}) async {
+    final response = await _getInstance()
+        .get("/$path", data: {'page': page}, cancelToken: token);
     List<Item> list =
         (response.data as List).map((item) => Item.fromJson(item)).toList();
     return Future.value(list);
   }
 
-  static Future<List<Item>> getNews(int page) async {
-    return _getItems('news', page);
+  static Future<List<Item>> getNews(int page, {CancelToken token}) async {
+    return _getItems('news', page, token: token);
   }
 
-  static Future<List<Item>> getNewest(int page) async {
-    return _getItems('newest', page);
+  static Future<List<Item>> getNewest(int page, {CancelToken token}) async {
+    return _getItems('newest', page, token: token);
   }
 
-  static Future<List<Item>> getBest(int page) async {
-    return _getItems('best', page);
+  static Future<List<Item>> getBest(int page, {CancelToken token}) async {
+    return _getItems('best', page, token: token);
   }
 
-  static Future<List<Item>> getAsk(int page) async {
-    return _getItems('ask', page);
+  static Future<List<Item>> getAsk(int page, {CancelToken token}) async {
+    return _getItems('ask', page, token: token);
   }
 
-  static Future<List<Item>> getShow(int page) async {
-    return _getItems('show', page);
+  static Future<List<Item>> getShow(int page, {CancelToken token}) async {
+    return _getItems('show', page, token: token);
   }
 
-  static Future<List<Item>> getJobs(int page) async {
-    return _getItems('jobs', page);
+  static Future<List<Item>> getJobs(int page, {CancelToken token}) async {
+    return _getItems('jobs', page, token: token);
   }
 }

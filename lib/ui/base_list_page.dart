@@ -7,56 +7,95 @@ abstract class BaseListPage<D> extends StatefulWidget {
 
   Widget buildItem(BuildContext context, D item, int index);
 
+  void dispose() {}
+
   @override
   _BaseListState<D> createState() => _BaseListState<D>();
 }
 
-class _BaseListState<D> extends State<BaseListPage<D>> {
+class _BaseListState<D> extends State<BaseListPage<D>>
+    with AutomaticKeepAliveClientMixin {
   static final Logger log = new Logger('_BaseListState');
   int _page = 1;
   final List<D> list = List();
+  bool isLoadMoreFinish = false;
+  bool isShowProgress = true;
 
   @override
   void initState() {
     super.initState();
-    widget.loadData(_page).then((value) => setState(() => list.addAll(value)));
+    widget
+        .loadData(_page)
+        .then((value) => setState(() {
+              isShowProgress = false;
+              isLoadMoreFinish = false;
+              list.addAll(value);
+            }))
+        .catchError((e) => log.severe("e", e));
   }
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        //下拉刷新
-        _page = 1;
-        final list = await widget.loadData(_page);
-        this.list.clear();
-        setState(() {
-          this.list.addAll(list);
-        });
-      },
-      child: LoadMore(
-        child: ListView.builder(
-          itemBuilder: (context, index) =>
-              widget.buildItem(context, list[index], index),
-          itemCount: list.length,
-        ),
-        onLoadMore: () async {
-          // 加载更多
-          var _list;
-          try {
-            _list = await widget.loadData(++_page);
-          } catch (e) {
-            log.severe('error', e);
-            _page--;
-            return false;
-          }
-          setState(() {
-            this.list.addAll(_list);
-          });
-          return true;
-        },
-        whenEmptyLoad: false,
-      ),
+    return Stack(
+      children: [
+        isShowProgress
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : RefreshIndicator(
+                onRefresh: () async {
+                  //下拉刷新
+                  _page = 1;
+                  final list = await widget.loadData(_page);
+                  this.list.clear();
+                  setState(() {
+                    isShowProgress = false;
+                    isLoadMoreFinish = false;
+                    this.list.addAll(list);
+                  });
+                },
+                child: LoadMore(
+                  isFinish: isLoadMoreFinish,
+                  child: ListView.builder(
+                    itemBuilder: (context, index) =>
+                        widget.buildItem(context, list[index], index),
+                    itemCount: list.length,
+                  ),
+                  onLoadMore: () async {
+                    // 加载更多
+                    List<D> _list;
+                    try {
+                      _list = await widget.loadData(++_page);
+                      if (_list == null || _list.isEmpty) {
+                        setState(() {
+                          isShowProgress = false;
+                          isLoadMoreFinish = true;
+                        });
+                      }
+                    } catch (e) {
+                      log.severe('error', e);
+                      _page--;
+                      return false;
+                    }
+                    setState(() {
+                      isShowProgress = false;
+                      this.list.addAll(_list);
+                    });
+                    return true;
+                  },
+                  whenEmptyLoad: false,
+                ),
+              ),
+      ],
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.dispose();
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

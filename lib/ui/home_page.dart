@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hacker_news/http/api.dart';
 import 'package:hacker_news/model/model.dart';
@@ -37,6 +38,7 @@ class HomePage extends StatelessWidget {
 
 class HomeListPage extends BaseListPage<Item> {
   final int _index;
+  CancelToken _cancelToken;
 
   HomeListPage(this._index);
 
@@ -47,30 +49,39 @@ class HomeListPage extends BaseListPage<Item> {
 
   @override
   Future<List<Item>> loadData(int page) {
+    _cancelToken = CancelToken();
     Future<List<Item>> future;
     switch (_index) {
       case 0:
-        future = Api.getNews(page);
+        future = Api.getNews(page, token: _cancelToken);
         break;
       case 1:
-        future = Api.getBest(page);
+        future = Api.getBest(page, token: _cancelToken);
         break;
       case 2:
-        future = Api.getNewest(page);
+        future = Api.getNewest(page, token: _cancelToken);
         break;
       case 3:
-        future = Api.getShow(page);
+        future = Api.getShow(page, token: _cancelToken);
         break;
       case 4:
-        future = Api.getAsk(page);
+        future = Api.getAsk(page, token: _cancelToken);
         break;
       case 5:
-        future = Api.getJobs(page);
+        future = Api.getJobs(page, token: _cancelToken);
         break;
       default:
-        future = Api.getNews(page);
+        future = Api.getNews(page, token: _cancelToken);
         break;
     }
     return future;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (_cancelToken != null) {
+      _cancelToken.cancel('cancel request');
+    }
   }
 }
