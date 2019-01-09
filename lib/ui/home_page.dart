@@ -20,6 +20,36 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: _tabTitles.length,
+      child: Scaffold(
+        appBar: AppBar(
+            title: Text(title),
+            bottom: TabBar(
+              tabs: _tabTitles.map((title) => Tab(text: title)).toList(),
+              isScrollable: true,
+            )),
+        body: TabBarView(
+            children: List.generate(
+                _tabTitles.length, (index) => _HomeListPage(index))),
+      ),
+    );
+  }
+}
+/*class HomePage extends StatelessWidget {
+  final String title = 'HOME';
+
+  final List<String> _tabTitles = [
+    'NEWS',
+    'BEST',
+    'NEWEST',
+    'SHOW',
+    'ASK',
+    'JOBS'
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: DefaultTabController(
           length: _tabTitles.length,
@@ -44,7 +74,7 @@ class HomePage extends StatelessWidget {
           )),
     );
   }
-}
+}*/
 
 class _HomeListPage extends BaseListPage<Item> {
   final int _index;

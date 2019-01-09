@@ -35,11 +35,11 @@ class _WebPageState extends State<WebPage> {
         withZoom: false,
         withLocalStorage: true,
         hidden: true,
-        initialChild: Container(
-          child: const Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
+//        initialChild: Container(
+//          child: const Center(
+//            child: CircularProgressIndicator(),
+//          ),
+//        ),
       );
 
   @override
