@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:hacker_news/http/api.dart';
 import 'package:hacker_news/model/model.dart';
 import 'package:hacker_news/ui/base_list_page.dart';
+import 'package:hacker_news/ui/widget/icon_text.dart';
+import 'package:hacker_news/utils/api.dart';
+import 'package:hacker_news/utils/routers.dart';
 
 class HomePage extends StatelessWidget {
-  HomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
+  final String title = 'HOME';
 
   final List<String> _tabTitles = [
     'NEWS',
@@ -20,31 +20,98 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: _tabTitles.length,
-      child: Scaffold(
-          appBar: AppBar(
-              title: Text(title),
-              bottom: TabBar(
-                tabs: _tabTitles.map((title) => Tab(text: title)).toList(),
-                isScrollable: true,
-              )),
-          body: TabBarView(
-              children: List.generate(
-                  _tabTitles.length, (index) => HomeListPage(index)))),
+    return Scaffold(
+      body: DefaultTabController(
+          length: _tabTitles.length,
+          child: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                    title: Text(title),
+                    pinned: true,
+                    floating: true,
+                    forceElevated: innerBoxIsScrolled,
+                    bottom: TabBar(
+                      tabs:
+                          _tabTitles.map((title) => Tab(text: title)).toList(),
+                      isScrollable: true,
+                    ))
+              ];
+            },
+            body: TabBarView(
+                children: List.generate(
+                    _tabTitles.length, (index) => _HomeListPage(index))),
+          )),
     );
   }
 }
 
-class HomeListPage extends BaseListPage<Item> {
+class _HomeListPage extends BaseListPage<Item> {
   final int _index;
   CancelToken _cancelToken;
 
-  HomeListPage(this._index);
+  _HomeListPage(this._index);
 
   @override
   Widget buildItem(BuildContext context, Item item, int index) {
-    return ListTile(key: Key(item.id.toString()), title: Text(item.title));
+    return GestureDetector(
+      key: Key(item.id.toString()),
+      onTap: () {
+        if (item.url != null) {
+          Routers.toWebPage(context, item.url);
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            // 分割线
+            border: Border(
+                bottom: BorderSide(
+          width: 0.5,
+          color: Theme.of(context).dividerColor,
+        ))),
+        child: Row(
+          children: [
+            Expanded(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.timeAgo,
+                  style: Theme.of(context).textTheme.caption,
+                ),
+                Container(
+                  padding: EdgeInsets.only(top: 6, bottom: 6),
+                  child: Text(
+                    item.title,
+                    style: Theme.of(context).textTheme.body2,
+                  ),
+                ),
+                item.domain != null
+                    ? Text(
+                        item.domain,
+                        style: Theme.of(context).textTheme.caption,
+                      )
+                    : Container()
+              ],
+            )),
+            item.points == null
+                ? Container()
+                : IconText(
+                    text: item.points.toString(),
+                    iconData: Icons.whatshot,
+                    color: Theme.of(context).primaryColor,
+                  ),
+            IconText(
+              text: item.commentsCount.toString(),
+              iconData: Icons.comment,
+              color: Theme.of(context).primaryColor,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override

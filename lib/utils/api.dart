@@ -3,6 +3,7 @@ import 'package:hacker_news/model/model.dart';
 import 'package:logging/logging.dart';
 
 class Api {
+  static final String hackerNewsUrl = 'https://news.ycombinator.com/';
   static Dio _instance;
   static final Logger log = new Logger('http');
 
@@ -35,8 +36,13 @@ class Api {
       {CancelToken token}) async {
     final response = await _getInstance()
         .get("/$path", data: {'page': page}, cancelToken: token);
-    List<Item> list =
-        (response.data as List).map((item) => Item.fromJson(item)).toList();
+    List<Item> list = (response.data as List).map((item) {
+      final i = Item.fromJson(item);
+      if (i.url != null && !i.url.startsWith('http')) {
+        i.url = hackerNewsUrl + i.url;
+      }
+      return i;
+    }).toList();
     return Future.value(list);
   }
 

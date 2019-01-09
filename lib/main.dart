@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hacker_news/ui/home_page.dart';
+import 'package:hacker_news/ui/web_page.dart';
 import 'package:logging/logging.dart';
 
 void main() => runApp(MyApp());
@@ -18,9 +19,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Hacker News',
       theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
+        primarySwatch: Colors.deepOrange
       ),
-      home: HomePage(title: 'Home Page'),
+      home: HomePage(),
     );
   }
 }

@@ -36,57 +36,61 @@ class _BaseListState<D> extends State<BaseListPage<D>>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        isShowProgress
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : RefreshIndicator(
-                onRefresh: () async {
-                  //下拉刷新
-                  _page = 1;
-                  final list = await widget.loadData(_page);
-                  this.list.clear();
-                  setState(() {
-                    isShowProgress = false;
-                    isLoadMoreFinish = false;
-                    this.list.addAll(list);
-                  });
-                },
-                child: LoadMore(
-                  isFinish: isLoadMoreFinish,
-                  child: ListView.builder(
-                    itemBuilder: (context, index) =>
-                        widget.buildItem(context, list[index], index),
-                    itemCount: list.length,
-                  ),
-                  onLoadMore: () async {
-                    // 加载更多
-                    List<D> _list;
-                    try {
-                      _list = await widget.loadData(++_page);
-                      if (_list == null || _list.isEmpty) {
-                        setState(() {
-                          isShowProgress = false;
-                          isLoadMoreFinish = true;
-                        });
-                      }
-                    } catch (e) {
-                      log.severe('error', e);
-                      _page--;
-                      return false;
-                    }
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: Stack(
+        children: [
+          isShowProgress
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    //下拉刷新
+                    _page = 1;
+                    final list = await widget.loadData(_page);
+                    this.list.clear();
                     setState(() {
                       isShowProgress = false;
-                      this.list.addAll(_list);
+                      isLoadMoreFinish = false;
+                      this.list.addAll(list);
                     });
-                    return true;
                   },
-                  whenEmptyLoad: false,
+                  child: LoadMore(
+                    isFinish: isLoadMoreFinish,
+                    child: ListView.builder(
+                      itemBuilder: (context, index) =>
+                          widget.buildItem(context, list[index], index),
+                      itemCount: list.length,
+                    ),
+                    onLoadMore: () async {
+                      // 加载更多
+                      List<D> _list;
+                      try {
+                        _list = await widget.loadData(++_page);
+                        if (_list == null || _list.isEmpty) {
+                          setState(() {
+                            isShowProgress = false;
+                            isLoadMoreFinish = true;
+                          });
+                        }
+                      } catch (e) {
+                        log.severe('error', e);
+                        _page--;
+                        return false;
+                      }
+                      setState(() {
+                        isShowProgress = false;
+                        this.list.addAll(_list);
+                      });
+                      return true;
+                    },
+                    whenEmptyLoad: false,
+                  ),
                 ),
-              ),
-      ],
+        ],
+      ),
     );
   }
 
