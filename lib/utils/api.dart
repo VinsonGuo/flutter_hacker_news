@@ -4,16 +4,15 @@ import 'package:logging/logging.dart';
 
 class Api {
   static final String hackerNewsUrl = 'https://news.ycombinator.com/';
+  static final String mercuryKey = 'Duud5bHkiTnSlTlaC2SLU3kZQjmiUEMkwofpyW7O';
+  static final String mercuryUrl = 'https://mercury.postlight.com/parser';
   static Dio _instance;
   static final Logger log = new Logger('http');
 
   static Dio _getInstance() {
     if (_instance == null) {
       // 或者通过传递一个 `options`来创建dio实例
-      Options options = new Options(
-          baseUrl: 'http://api.hackerwebapp.com',
-          connectTimeout: 5000,
-          receiveTimeout: 3000);
+      Options options = new Options(connectTimeout: 5000, receiveTimeout: 3000);
       _instance = Dio(options);
       _instance.interceptor.request.onSend = (options) {
         log.fine(
@@ -32,10 +31,22 @@ class Api {
     return _instance;
   }
 
+  static Future<ArticleDetail> getArticleDetail(String url,
+      {CancelToken token}) async {
+    final response = await _getInstance().get(mercuryUrl,
+        data: {'url': url},
+        options: Options(headers: {'x-api-key': mercuryKey}),
+        cancelToken: token);
+    ArticleDetail detail = ArticleDetail.fromJson(response.data);
+    return Future.value(detail);
+  }
+
   static Future<List<Item>> _getItems(String path, int page,
       {CancelToken token}) async {
-    final response = await _getInstance()
-        .get("/$path", data: {'page': page}, cancelToken: token);
+    final response = await _getInstance().get(
+        "http://api.hackerwebapp.com/$path",
+        data: {'page': page},
+        cancelToken: token);
     List<Item> list = (response.data as List).map((item) {
       final i = Item.fromJson(item);
       if (i.url != null && !i.url.startsWith('http')) {

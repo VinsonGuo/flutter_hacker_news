@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hacker_news/model/model.dart';
+import 'package:hacker_news/ui/article_detail_page.dart';
 import 'package:hacker_news/ui/base_list_page.dart';
+import 'package:hacker_news/ui/web_page.dart';
 import 'package:hacker_news/ui/widget/icon_text.dart';
 import 'package:hacker_news/utils/api.dart';
-import 'package:hacker_news/utils/routers.dart';
 
 class HomePage extends StatelessWidget {
   final String title = 'HOME';
@@ -88,7 +89,10 @@ class _HomeListPage extends BaseListPage<Item> {
       key: Key(item.id.toString()),
       onTap: () {
         if (item.url != null) {
-          Routers.toWebPage(context, item.url);
+          ArticleDetailPage.launch(context, item.url);
+//        Api.getArticleDetail(item.url).then((detail){
+//          print(detail);
+//        });
         }
       },
       child: Container(

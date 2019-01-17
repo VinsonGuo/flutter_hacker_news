@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 class WebPage extends StatefulWidget {
+
+  static void launch(BuildContext context, String url) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => WebPage(url)));
+  }
+
   final String url;
 
   WebPage(this.url);
