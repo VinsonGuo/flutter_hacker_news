@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:hacker_news/model/model.dart';
 import 'package:hacker_news/ui/article_detail_page.dart';
 import 'package:hacker_news/ui/base_list_page.dart';
-import 'package:hacker_news/ui/web_page.dart';
 import 'package:hacker_news/ui/widget/icon_text.dart';
 import 'package:hacker_news/utils/api.dart';
 
@@ -89,9 +88,9 @@ class _HomeListPage extends BaseListPage<Item> {
       key: Key(item.id.toString()),
       onTap: () {
         if (item.url != null) {
-          ArticleDetailPage.launch(context, item.url);
-//        Api.getArticleDetail(item.url).then((detail){
-//          print(detail);
+          ArticleDetailPage.launch(context, item.id, item.url);
+//        Api.getComment(18926225).then((value){
+//          print(value);
 //        });
         }
       },
@@ -154,25 +153,25 @@ class _HomeListPage extends BaseListPage<Item> {
     Future<List<Item>> future;
     switch (_index) {
       case 0:
-        future = Api.getNews(page, token: _cancelToken);
+        future = Api.getNews(page, _cancelToken);
         break;
       case 1:
-        future = Api.getBest(page, token: _cancelToken);
+        future = Api.getBest(page, _cancelToken);
         break;
       case 2:
-        future = Api.getNewest(page, token: _cancelToken);
+        future = Api.getNewest(page, _cancelToken);
         break;
       case 3:
-        future = Api.getShow(page, token: _cancelToken);
+        future = Api.getShow(page, _cancelToken);
         break;
       case 4:
-        future = Api.getAsk(page, token: _cancelToken);
+        future = Api.getAsk(page, _cancelToken);
         break;
       case 5:
-        future = Api.getJobs(page, token: _cancelToken);
+        future = Api.getJobs(page, _cancelToken);
         break;
       default:
-        future = Api.getNews(page, token: _cancelToken);
+        future = Api.getNews(page, _cancelToken);
         break;
     }
     return future;
