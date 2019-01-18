@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:hacker_news/model/model.dart';
-import 'package:hacker_news/ui/web_page.dart';
 import 'package:hacker_news/utils/api.dart';
 import 'package:logging/logging.dart';
 import 'package:share/share.dart';
@@ -12,7 +13,7 @@ final Logger log = new Logger('ArticleDetailPage');
 class ArticleDetailPage extends StatefulWidget {
   static void launch(BuildContext context, int id, String url) {
     Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => ArticleDetailPage(id, url)));
+        .push(CupertinoPageRoute(builder: (_) => ArticleDetailPage(id, url)));
   }
 
   final String url;
@@ -26,7 +27,6 @@ class ArticleDetailPage extends StatefulWidget {
 
 class _ArticleDetailState extends State<ArticleDetailPage> {
   ArticleDetail _detail;
-  String _commentHtml = '';
   CancelToken _cancelToken = CancelToken();
 
   @override
@@ -39,21 +39,6 @@ class _ArticleDetailState extends State<ArticleDetailPage> {
     }).catchError((e) {
       log.severe("getArticleDetail", e);
     });
-
-//    Api.getComment(widget.id, _cancelToken).then((html) {
-//      setState(() {
-//        _commentHtml = html.toString();
-//      });
-//    }).catchError((e) {
-//      log.severe("getComment", e);
-//    });
-//    Api.getWebComment(widget.id, _cancelToken).then((html) {
-//      setState(() {
-//        _commentHtml = html;
-//      });
-//    }).catchError((e) {
-//      log.severe("getArticleDetail", e);
-//    });
   }
 
   @override
@@ -81,13 +66,21 @@ class _ArticleDetailState extends State<ArticleDetailPage> {
                           )),
                 actions: [
                   IconButton(
+                    icon: Icon(Icons.add_comment),
+                    onPressed: () => FlutterWebBrowser.openWebPage(
+                        url: '${Api.hackerNewsUrl}item?id=${widget.id}',
+                        androidToolbarColor: Theme.of(context).primaryColor),
+                  ),
+                  IconButton(
                     icon: Icon(Icons.web),
-                    onPressed: () => WebPage.launch(context, widget.url),
+                    onPressed: () => FlutterWebBrowser.openWebPage(
+                        url: widget.url,
+                        androidToolbarColor: Theme.of(context).primaryColor),
                   ),
                   IconButton(
                     icon: Icon(Icons.share),
                     onPressed: () => Share.share(widget.url),
-                  )
+                  ),
                 ],
               ),
               SliverToBoxAdapter(
@@ -108,10 +101,11 @@ class _ArticleDetailState extends State<ArticleDetailPage> {
                           data: _detail.content,
                           padding:
                               EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                          onLinkTap: (url) => WebPage.launch(context, url),
+                          onLinkTap: (url) => FlutterWebBrowser.openWebPage(
+                              url: url,
+                              androidToolbarColor:
+                                  Theme.of(context).primaryColor),
                         ),
-//                  Html(data: _commentHtml),
-                  Text(_commentHtml),
                 ]),
               ),
             ],

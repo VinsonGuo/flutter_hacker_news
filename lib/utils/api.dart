@@ -85,7 +85,8 @@ class Api {
           cancelToken: cancelToken);
       Comment comment = Comment.fromJson(response.data);
       comment.commentLevel = level;
-      comment.children = await _getComment(comment.kids, level+1, cancelToken);
+      comment.children =
+          await _getComment(comment.kids, level + 1, cancelToken);
       return comment;
     }));
   }

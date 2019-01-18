@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:hacker_news/model/model.dart';
 import 'package:hacker_news/ui/article_detail_page.dart';
 import 'package:hacker_news/ui/base_list_page.dart';
@@ -89,9 +90,6 @@ class _HomeListPage extends BaseListPage<Item> {
       onTap: () {
         if (item.url != null) {
           ArticleDetailPage.launch(context, item.id, item.url);
-//        Api.getComment(18926225).then((value){
-//          print(value);
-//        });
         }
       },
       child: Container(
@@ -140,6 +138,9 @@ class _HomeListPage extends BaseListPage<Item> {
               text: item.commentsCount.toString(),
               iconData: Icons.comment,
               color: Theme.of(context).primaryColor,
+              onTap: () => FlutterWebBrowser.openWebPage(
+                  url: '${Api.hackerNewsUrl}item?id=${item.id}',
+                  androidToolbarColor: Theme.of(context).primaryColor),
             ),
           ],
         ),
