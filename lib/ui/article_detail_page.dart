@@ -5,6 +5,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:hacker_news/model/model.dart';
 import 'package:hacker_news/utils/api.dart';
+import 'package:html/dom.dart' hide Text;
 import 'package:logging/logging.dart';
 import 'package:share/share.dart';
 
@@ -118,4 +119,5 @@ class _ArticleDetailState extends State<ArticleDetailPage> {
     super.dispose();
     _cancelToken.cancel();
   }
+
 }

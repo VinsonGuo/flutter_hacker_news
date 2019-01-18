@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hacker_news/ui/home_page.dart';
-import 'package:hacker_news/ui/web_page.dart';
 import 'package:logging/logging.dart';
+import 'package:dynamic_theme/dynamic_theme.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,12 +16,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Hacker News',
-      theme: ThemeData(
-        primarySwatch: Colors.deepOrange
-      ),
-      home: HomePage(),
+    return new DynamicTheme(
+        defaultBrightness: Brightness.light,
+        data: (brightness) => new ThemeData(
+          primarySwatch: Colors.deepOrange,
+          brightness: brightness,
+        ),
+        themedWidgetBuilder: (context, theme) {
+          return new MaterialApp(
+            title: 'Hacker News',
+            theme: theme,
+            home: new HomePage(),
+          );
+        }
     );
   }
 }

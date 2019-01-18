@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:hacker_news/model/model.dart';
@@ -6,8 +7,16 @@ import 'package:hacker_news/ui/article_detail_page.dart';
 import 'package:hacker_news/ui/base_list_page.dart';
 import 'package:hacker_news/ui/widget/icon_text.dart';
 import 'package:hacker_news/utils/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  HomePageState createState() {
+    return new HomePageState();
+  }
+}
+
+class HomePageState extends State<HomePage> {
   final String title = 'HOME';
 
   final List<String> _tabTitles = [
@@ -19,6 +28,18 @@ class HomePage extends StatelessWidget {
     'JOBS'
   ];
 
+  bool isDarkMode;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        isDarkMode = prefs.getBool('isDark') ?? false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -26,6 +47,18 @@ class HomePage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
             title: Text(title),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(isDarkMode ? Icons.wb_sunny : Icons.brightness_3),
+                onPressed: () {
+                  DynamicTheme.of(context).setBrightness(
+                      isDarkMode ? Brightness.light : Brightness.dark);
+                  setState(() {
+                    isDarkMode = !isDarkMode;
+                  });
+                },
+              )
+            ],
             bottom: TabBar(
               tabs: _tabTitles.map((title) => Tab(text: title)).toList(),
               isScrollable: true,
