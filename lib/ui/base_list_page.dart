@@ -17,7 +17,7 @@ class _BaseListState<D> extends State<BaseListPage<D>>
     with AutomaticKeepAliveClientMixin {
   static final Logger log = new Logger('_BaseListState');
   int _page = 1;
-  final List<D> list = List();
+  List<D> list = List();
   bool isLoadMoreFinish = false;
   bool isShowProgress = true;
 
@@ -29,7 +29,7 @@ class _BaseListState<D> extends State<BaseListPage<D>>
         .then((value) => setState(() {
               isShowProgress = false;
               isLoadMoreFinish = false;
-              list.addAll(value);
+              list += value;
             }))
         .catchError((e) => log.severe("e", e));
   }
@@ -54,7 +54,7 @@ class _BaseListState<D> extends State<BaseListPage<D>>
                     setState(() {
                       isShowProgress = false;
                       isLoadMoreFinish = false;
-                      this.list.addAll(list);
+                      this.list += list;
                     });
                   },
                   child: LoadMore(
@@ -82,7 +82,7 @@ class _BaseListState<D> extends State<BaseListPage<D>>
                       }
                       setState(() {
                         isShowProgress = false;
-                        this.list.addAll(_list);
+                        this.list += _list;
                       });
                       return true;
                     },
