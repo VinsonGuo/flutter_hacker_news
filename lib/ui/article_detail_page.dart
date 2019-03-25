@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:hacker_news/model/model.dart';
+import 'package:hacker_news/ui/web_page.dart';
 import 'package:hacker_news/utils/api.dart';
-import 'package:html/dom.dart' hide Text;
 import 'package:logging/logging.dart';
 import 'package:share/share.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 final Logger log = new Logger('ArticleDetailPage');
 
@@ -44,6 +43,20 @@ class _ArticleDetailState extends State<ArticleDetailPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text(_detail?.title ?? 'Loading...'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add_comment),
+              onPressed: () => WebPage.launch(
+                  context, '${Api.hackerNewsUrl}item?id=${widget.id}'),
+            ),
+            IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () => Share.share(widget.url),
+            ),
+          ],
+        ),
         body: RefreshIndicator(
           onRefresh: () async {
             ArticleDetail detail =
@@ -52,64 +65,9 @@ class _ArticleDetailState extends State<ArticleDetailPage> {
               _detail = detail;
             });
           },
-          child: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                title: Text(_detail?.title ?? 'Loading'),
-                pinned: true,
-                expandedHeight: 180,
-                flexibleSpace: FlexibleSpaceBar(
-                    background: _detail?.leadImageUrl == null
-                        ? Icon(Icons.panorama)
-                        : Image.network(
-                            _detail.leadImageUrl,
-                            fit: BoxFit.cover,
-                          )),
-                actions: [
-                  IconButton(
-                    icon: Icon(Icons.add_comment),
-                    onPressed: () => FlutterWebBrowser.openWebPage(
-                        url: '${Api.hackerNewsUrl}item?id=${widget.id}',
-                        androidToolbarColor: Theme.of(context).primaryColor),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.web),
-                    onPressed: () => FlutterWebBrowser.openWebPage(
-                        url: widget.url,
-                        androidToolbarColor: Theme.of(context).primaryColor),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.share),
-                    onPressed: () => Share.share(widget.url),
-                  ),
-                ],
-              ),
-              SliverToBoxAdapter(
-                child: Column(children: [
-                  Padding(
-                    child: Text(
-                      _detail?.title ?? '',
-                      style: Theme.of(context).textTheme.title,
-                    ),
-                    padding: EdgeInsets.only(
-                        left: 10, right: 10, bottom: 10, top: 20),
-                  ),
-                  _detail == null
-                      ? Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : Html(
-                          data: _detail.content,
-                          padding:
-                              EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                          onLinkTap: (url) => FlutterWebBrowser.openWebPage(
-                              url: url,
-                              androidToolbarColor:
-                                  Theme.of(context).primaryColor),
-                        ),
-                ]),
-              ),
-            ],
+          child: WebView(
+            initialUrl: widget.url,
+            javascriptMode: JavascriptMode.unrestricted,
           ),
         ),
       );
@@ -119,5 +77,4 @@ class _ArticleDetailState extends State<ArticleDetailPage> {
     super.dispose();
     _cancelToken.cancel();
   }
-
 }

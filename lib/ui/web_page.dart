@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class WebPage extends StatefulWidget {
   static void launch(BuildContext context, String url) {
@@ -17,40 +17,28 @@ class WebPage extends StatefulWidget {
 }
 
 class _WebPageState extends State<WebPage> {
-  final flutterWebViewPlugin = FlutterWebviewPlugin();
+  WebViewController _controller;
   String _url;
 
   _WebPageState(this._url);
 
   @override
-  void initState() {
-    super.initState();
-    flutterWebViewPlugin.onUrlChanged.listen((url) {
-      setState(() {
-        _url = url;
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) => WebviewScaffold(
-        url: widget.url,
+  Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text(_url),
         ),
-        withZoom: false,
-        withLocalStorage: true,
-        hidden: true,
-//        initialChild: Container(
-//          child: const Center(
-//            child: CircularProgressIndicator(),
-//          ),
-//        ),
+        body: WebView(
+          initialUrl: _url,
+          javascriptMode: JavascriptMode.unrestricted,
+          onWebViewCreated: (WebViewController webViewController) {
+            _controller = webViewController;
+          },
+          onPageFinished: (url) {},
+        ),
       );
 
   @override
   void dispose() {
     super.dispose();
-    flutterWebViewPlugin.dispose();
   }
 }
