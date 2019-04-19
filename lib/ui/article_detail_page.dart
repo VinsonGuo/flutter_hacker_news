@@ -11,64 +11,59 @@ import 'package:webview_flutter/webview_flutter.dart';
 final Logger log = new Logger('ArticleDetailPage');
 
 class ArticleDetailPage extends StatefulWidget {
-  static void launch(BuildContext context, int id, String url) {
+  static void launch(BuildContext context, Item item) {
     Navigator.of(context)
-        .push(CupertinoPageRoute(builder: (_) => ArticleDetailPage(id, url)));
+        .push(CupertinoPageRoute(builder: (_) => ArticleDetailPage(item)));
   }
 
-  final String url;
-  final int id;
+  final Item item;
 
-  ArticleDetailPage(this.id, this.url);
+  ArticleDetailPage(this.item);
 
   @override
   _ArticleDetailState createState() => _ArticleDetailState();
 }
 
 class _ArticleDetailState extends State<ArticleDetailPage> {
-  ArticleDetail _detail;
   CancelToken _cancelToken = CancelToken();
+  WebViewController _webViewController;
+  bool _showProgress = true;
 
   @override
   void initState() {
     super.initState();
-    Api.getArticleDetail(widget.url, _cancelToken).then((detail) {
-      setState(() {
-        _detail = detail;
-      });
-    }).catchError((e) {
-      log.severe("getArticleDetail", e);
-    });
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: Text(_detail?.title ?? 'Loading...'),
+          title: Text(widget.item.title),
           actions: [
             IconButton(
               icon: Icon(Icons.add_comment),
               onPressed: () => WebPage.launch(
-                  context, '${Api.hackerNewsUrl}item?id=${widget.id}'),
+                  context, '${Api.hackerNewsUrl}item?id=${widget.item.id}'),
             ),
             IconButton(
               icon: Icon(Icons.share),
-              onPressed: () => Share.share(widget.url),
+              onPressed: () => Share.share(widget.item.url),
             ),
           ],
         ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            ArticleDetail detail =
-                await Api.getArticleDetail(widget.url, _cancelToken);
-            setState(() {
-              _detail = detail;
-            });
-          },
-          child: WebView(
-            initialUrl: widget.url,
-            javascriptMode: JavascriptMode.unrestricted,
-          ),
+        body: Stack(
+          children: [
+            WebView(
+              initialUrl: widget.item.url,
+              javascriptMode: JavascriptMode.unrestricted,
+              onWebViewCreated: (controller) => _webViewController = controller,
+              onPageFinished: (url) =>
+                  this.setState(() => _showProgress = false),
+            ),
+            Visibility(
+              child: Center(child: CircularProgressIndicator()),
+              visible: _showProgress,
+            )
+          ],
         ),
       );
 

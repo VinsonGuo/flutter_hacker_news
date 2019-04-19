@@ -122,7 +122,7 @@ class _HomeListPage extends BaseListPage<Item> {
       key: Key(item.id.toString()),
       onTap: () {
         if (item.url != null) {
-          ArticleDetailPage.launch(context, item.id, item.url);
+          ArticleDetailPage.launch(context, item);
         }
       },
       child: Container(
