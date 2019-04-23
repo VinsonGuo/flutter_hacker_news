@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +114,7 @@ class HomePageState extends State<HomePage> {
 
 class _HomeListPage extends BaseListPage<Item> {
   final int _index;
-  CancelToken _cancelToken;
+  final CancelToken _cancelToken = CancelToken();
 
   _HomeListPage(this._index);
 
@@ -184,7 +186,6 @@ class _HomeListPage extends BaseListPage<Item> {
 
   @override
   Future<List<Item>> loadData(int page) {
-    _cancelToken = CancelToken();
     Future<List<Item>> future;
     switch (_index) {
       case 0:
@@ -215,8 +216,6 @@ class _HomeListPage extends BaseListPage<Item> {
   @override
   void dispose() {
     super.dispose();
-    if (_cancelToken != null) {
-      _cancelToken.cancel('cancel request');
-    }
+    _cancelToken?.cancel('cancel request');
   }
 }

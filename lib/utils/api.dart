@@ -1,12 +1,11 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:hacker_news/model/model.dart';
-import 'package:html/parser.dart' show parse;
 import 'package:logging/logging.dart';
 
 class Api {
   static final String hackerNewsUrl = 'https://news.ycombinator.com/';
-  static final String mercuryKey = 'Duud5bHkiTnSlTlaC2SLU3kZQjmiUEMkwofpyW7O';
-  static final String mercuryUrl = 'https://mercury.postlight.com/parser';
   static Dio _instance;
   static final Logger log = new Logger('http');
 
@@ -30,26 +29,6 @@ class Api {
       };
     }
     return _instance;
-  }
-
-  static Future<ArticleDetail> getArticleDetail(String url,
-      [CancelToken cancelToken]) async {
-    final response = await _getInstance().get(mercuryUrl,
-        data: {'url': url},
-        options: Options(headers: {'x-api-key': mercuryKey}),
-        cancelToken: cancelToken);
-    ArticleDetail detail = ArticleDetail.fromJson(response.data);
-    return Future.value(detail);
-  }
-
-  static Future<String> getWebComment(int id, [CancelToken cancelToken]) async {
-    return await _getInstance()
-        .get(hackerNewsUrl + 'item',
-            options: Options(data: {'id': id}), cancelToken: cancelToken)
-        .then((response) {
-      String html = response.data;
-      return parse(html).querySelector('table.comment-tree').outerHtml;
-    });
   }
 
   static Future<List<Comment>> getComment(int id,
